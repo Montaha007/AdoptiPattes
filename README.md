@@ -59,6 +59,10 @@ npm start
 
 Open http://localhost:4200. The development proxy sends `/api` requests to `http://localhost:8082`. Run the backend separately. If you change the backend port, update `frontend/proxy.conf.json`. There are no mock API responses in the frontend.
 
+## Development in VS Code
+
+Use Terminal > Run Task > Spring Boot development (MySQL) to run the Java source on port 8082. Start Angular development server in a second terminal on port 4200. For the packaged version, double-click START-MYSQL.cmd.
+
 ## Build and test from source
 
 Requires Java 17, Maven 3.6.3+ and Node 24 LTS.
@@ -173,6 +177,7 @@ A real VPS URL, external SMTP delivery and your own MySQL credentials require yo
 ## Presentation checklist
 
 Show visitor browsing and city/category filters; log in as Maya and create a stray report with GPS; leave a comment; demonstrate member edit/delete denial; log in as Admin and change status, edit/delete a comment and inspect users; register a new member and show the Mailpit/SMTP email; show the combined JAR and Postman tests. See `docs/architecture.md` for the class diagram and design notes.
+
 
 
 
