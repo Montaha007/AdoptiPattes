@@ -33,15 +33,16 @@ There are 15 seed announcements across all three categories and 20 comments. The
 
 - Spring Boot **3.5.16**, Java **17**, Maven; Spring Web, JPA, Security, Mail, Validation, BCrypt and JJWT.
 - Angular **21.2.26** standalone components, Angular Material **21.2.14**, HttpClient services, route guards and JWT interceptor.
+- A responsive retro-console interface with a persistent paper/arcade theme toggle, 8px layout tokens, reduced-motion support, keyboard focus states and interactive local SVG cats. Pixelify Sans is loaded from Google Fonts; no UI images or dependencies are required from a paid source.
 - Four entities: User, Role, Annonce, Commentaire. Enum values and permissions match the brief.
 - Public listing/detail, category and city filters, posting, comments, administrator moderation and member list.
 - Author determined by authenticated JWT; registration always creates a member, even if the client submits a role.
 - GPS validation for stray reports, optional browser geolocation, OpenStreetMap links.
 - SMTP notification to the administrator after a successful registration transaction.
 - Responsive lavender/pink interface, original SVG cat illustration, two interactive wandering cats, hide/pause controls and reduced-motion support.
-- Validation and explicit loading/error/empty states. Admin-only edit/delete controls. Passwords are never returned by the API.
+- Validation and explicit loading/error/empty states. Members can edit/delete their own announcements; admins can moderate all announcements and delete users. Passwords are never returned by the API.
 - Single `adp.jar` packaging; hash-based Angular routing supports refresh and direct links without server rewrites.
-- Automated API integration tests, Postman collection, database bootstrap, Docker Compose, and deployment instructions.
+- Automated API integration tests, Postman collection, database bootstrap, Docker Compose, and Render deployment instructions.
 
 The visual design is custom and uses public Angular Material components, as requested. The assignment names Paper Dashboard Angular and says an alternative requires instructor validation: have the instructor approve this custom Material design.
 
@@ -49,7 +50,7 @@ The visual design is custom and uses public Angular Material components, as requ
 
 **Eclipse / Spring Tool Suite:** File → Import → Maven → Existing Maven Projects → select this project's root directory (containing `pom.xml`) → Finish. Keep Java 17 selected. Run `AdpApplication` as a Spring Boot App. For the local demo, add `--spring.profiles.active=demo` under Run Configurations → Arguments → Program arguments. If the old `adp` project conflicts in Eclipse, close it or use a new workspace; do not delete its files.
 
-**VS Code:** Open `D:\GL\Springboot\Workspace\adp` to see the Java backend and Angular frontend together. Use Terminal > Run Task > **Spring Boot development (MySQL)** to run the Java source, and **Angular development server** for the frontend. The backend task prompts for your database password. Prerequisites: Node.js **24 LTS** and npm. Angular 21 supports Node 20.19+, 22.12+, or 24.x; use Node 24 for reproducible tooling rather than an unsupported major.
+**VS Code:** Open `D:\GL\Springboot\Workspace\adp` to see the Java backend and Angular frontend together. Use Terminal > Run Task > **Spring Boot development (MySQL)** to run the Java source, and **Angular development server** for the frontend. The backend task prompts for your database password. Prerequisites: Node.js **24 LTS** and npm. Angular 21 supports Node 20.19+, 22.12+, or 24.x; use Node 24 for reproducible tooling rather than an unsupported major. `frontend/.nvmrc` is included for nvm users.
 
 ```powershell
 cd frontend
@@ -127,7 +128,7 @@ For real email, set `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, 
 | GET | /api/annonces?type=ADOPTION&ville=Tunis | Public |
 | GET | /api/annonces/{id} | Public |
 | POST | /api/annonces | Member/Admin |
-| PUT, DELETE | /api/annonces/{id} | Admin |
+| PUT, DELETE | /api/annonces/{id} | Owner or Admin |
 | GET | /api/annonces/{id}/commentaires | Public |
 | POST | /api/annonces/{id}/commentaires | Member/Admin |
 | PUT, DELETE | /api/commentaires/{id} | Admin |
@@ -163,20 +164,46 @@ src/main/java/tn/blueorbit/adp/
 
 The brief lists four entities but only specifies public CRUD routes for announcements/comments and admin user listing. This implementation keeps user creation in registration and roles in the internal RoleService; it does not expose unrestricted account/role management APIs.
 
-## VPS deployment
+## Render deployment
 
-1. Install Java 17, MySQL and Nginx on your VPS; create the database and a dedicated user.
-2. Build locally and transfer `adp.jar` to `/opt/adp/adp.jar`.
-3. Store production environment values in `/etc/adp.env`, readable only by the service account/root. Do not use the demo profile or default demo passwords.
-4. Use `deployment/adp.service` as a systemd example. Run the app on 127.0.0.1:8082 behind Nginx; only expose HTTPS/HTTP publicly.
-5. Adapt `deployment/nginx.conf` to your domain and obtain a TLS certificate. Browser geolocation needs HTTPS except on localhost; manual coordinates still work without geolocation.
-6. Check login, posting, admin moderation, registration email and a restarted service before your presentation. Set `SEED_ENABLED=false` after initializing data and back up MySQL.
+This project is deployed on Render as a Docker **Web Service**. Render provides the application
+server and HTTPS URL, but this project still needs an external MySQL database because its JPA
+configuration uses MySQL. Do not use the `demo` profile or demo passwords in production.
 
-A real VPS URL, external SMTP delivery and your own MySQL credentials require your infrastructure; they are not fabricated by this project.
+1. Push this repository to GitHub. Keep `.env`, database files, passwords, SMTP credentials and
+   JWT secrets out of the repository.
+2. Create a MySQL database with a provider that allows external connections. Copy its host, port,
+   database name, username and password. The database must allow the Render service to connect.
+3. In Render, choose **New → Web Service**, connect the GitHub repository, and choose **Docker**.
+   Render will use the repository `Dockerfile`. Leave the port unset; Render supplies `PORT`.
+4. Add these environment variables in Render's **Environment** page:
+
+   `DB_URL` = `jdbc:mysql://HOST:PORT/DATABASE?createDatabaseIfNotExist=true&connectionTimeZone=UTC`
+
+   `DB_USERNAME` = your MySQL username
+   `DB_PASSWORD` = your MySQL password
+   `JWT_SECRET` = a new random secret of at least 32 bytes
+   `CORS_ORIGINS` = your Render URL, for example `https://your-service.onrender.com`
+   `SEED_ENABLED` = `true` for the first deployment, then change it to `false`
+   `ADMIN_EMAIL` = the email that should receive registration notifications
+   `ADMIN_PASSWORD` = a strong initial admin password
+   `MAIL_ENABLED` = `true`
+
+5. Add the SMTP variables for your mail provider: `SMTP_HOST`, `SMTP_PORT`,
+   `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_AUTH`, `SMTP_STARTTLS`, and `MAIL_FROM`.
+   Use an SMTP app password, not your normal email password. Add these only in Render's
+   environment settings, never in GitHub.
+6. Deploy and wait for the build to finish. Test the public URL, registration, login, posting,
+   owner edit/delete, admin user deletion and registration email. After the first successful
+   seed, set `SEED_ENABLED=false` and redeploy.
+
+The Docker image builds Angular first, copies it into Spring Boot's static resources, runs the
+backend tests, and starts the packaged JAR on Render's assigned port. Browser geolocation works
+on the Render HTTPS URL.
 
 ## Presentation checklist
 
-Show visitor browsing and city/category filters; log in as Maya and create a stray report with GPS; leave a comment; demonstrate member edit/delete denial; log in as Admin and change status, edit/delete a comment and inspect users; register a new member and show the Mailpit/SMTP email; show the combined JAR and Postman tests. See `docs/architecture.md` for the class diagram and design notes.
+Show visitor browsing and city/category filters; log in as Maya and create a stray report with GPS; edit and delete that post; leave a comment; log in as Admin and moderate another post, edit/delete a comment and inspect users; register a new member and show the Mailpit/SMTP email; show the combined JAR and Postman tests. See `docs/architecture.md` for the class diagram and design notes.
 
 
 
