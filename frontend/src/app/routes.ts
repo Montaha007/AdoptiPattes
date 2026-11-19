@@ -1,6 +1,13 @@
 import { Routes } from "@angular/router";
-import { authGuard, adminGuard } from "./core";
+import { authGuard, adminGuard, postOwnerGuard } from "./core";
 export const routes: Routes = [
+  {
+    path: "my-publications",
+    canActivate: [authGuard],
+    loadComponent: () => import("./annonce-list.component").then((m) => m.AnnonceListComponent),
+    data: { mine: true },
+    title: "My publications ? AdoptiPattes",
+  },
   {
     path: "",
     loadComponent: () => import("./annonce-list.component").then((m) => m.AnnonceListComponent),
@@ -25,7 +32,7 @@ export const routes: Routes = [
   },
   {
     path: "annonces/:id/edit",
-    canActivate: [adminGuard],
+    canActivate: [postOwnerGuard],
     loadComponent: () => import("./annonce-form.component").then((m) => m.AnnonceFormComponent),
     title: "Update a story · AdoptiPattes",
   },

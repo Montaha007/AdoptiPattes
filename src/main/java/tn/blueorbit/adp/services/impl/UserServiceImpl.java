@@ -12,6 +12,8 @@ import tn.blueorbit.adp.dto.ApiDtos;
 import tn.blueorbit.adp.dto.ApiDtos.*;
 import tn.blueorbit.adp.entities.User;
 import tn.blueorbit.adp.repositories.UserRepository;
+import tn.blueorbit.adp.repositories.AnnonceRepository;
+import tn.blueorbit.adp.repositories.CommentaireRepository;
 import tn.blueorbit.adp.security.JwtService;
 import tn.blueorbit.adp.services.*;
 
@@ -19,6 +21,8 @@ import tn.blueorbit.adp.services.*;
 @Transactional
 public class UserServiceImpl implements UserService {
   private final UserRepository repo;
+  private final AnnonceRepository posts;
+  private final CommentaireRepository comments;
   private final RoleService roles;
   private final PasswordEncoder encoder;
   private final JwtService jwt;
@@ -26,15 +30,36 @@ public class UserServiceImpl implements UserService {
 
   public UserServiceImpl(
       UserRepository repo,
+      AnnonceRepository posts,
+      CommentaireRepository comments,
       RoleService roles,
       PasswordEncoder encoder,
       JwtService jwt,
       ApplicationEventPublisher events) {
     this.repo = repo;
+    this.posts = posts;
+    this.comments = comments;
     this.roles = roles;
     this.encoder = encoder;
     this.jwt = jwt;
     this.events = events;
+  }
+
+  public void delete(Long id, String actorEmail) {
+    User actor = repo.findByEmail(actorEmail).orElseThrow(() ->
+        new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Please sign in"));
+    if (actor.getRoles().stream().noneMatch(r -> "ADMIN".equals(r.getLibelle())))
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Administrator permission required");
+    User target = repo.findById(id).orElseThrow(() ->
+        new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+    if (target.getId().equals(actor.getId()))
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "You cannot delete your own admin account");
+    comments.deleteAllByUserId(id);
+    comments.deleteAllByAnnonceUserId(id);
+    comments.flush();
+    posts.deleteAllByUserId(id);
+    posts.flush();
+    repo.delete(target);
   }
 
   public List<UserView> list() {
@@ -58,6 +83,7 @@ public class UserServiceImpl implements UserService {
     u.setNom(x.nom().trim());
     u.setPrenom(x.prenom().trim());
     u.setTel(x.tel().trim());
+    u.setCatColor(x.catColor());
     u.getRoles().add(roles.member());
     repo.saveAndFlush(u);
     events.publishEvent(

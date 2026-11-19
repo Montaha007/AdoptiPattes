@@ -22,7 +22,9 @@
                 "input": "public"
               }
             ],
-            "styles": ["src/styles.scss"]
+            "styles": [
+              "src/styles.scss"
+            ]
           },
           "configurations": {
             "production": {
@@ -34,15 +36,27 @@
                   "maximumError": "2mb"
                 }
               ]
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "outputHashing": "none"
             }
           },
           "defaultConfiguration": "production"
         },
         "serve": {
           "builder": "@angular/build:dev-server",
-          "options": {
-            "buildTarget": "adp:build"
-          }
+          "configurations": {
+            "development": {
+              "buildTarget": "adp:build:development"
+            },
+            "production": {
+              "buildTarget": "adp:build:production"
+            }
+          },
+          "defaultConfiguration": "development"
         }
       }
     }

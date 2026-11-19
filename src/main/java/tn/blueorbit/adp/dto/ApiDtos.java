@@ -11,14 +11,15 @@ public final class ApiDtos {
       @NotBlank @Size(min = 10, max = 72) String password,
       @NotBlank @Size(max = 80) String nom,
       @NotBlank @Size(max = 80) String prenom,
-      @NotBlank @Size(max = 30) String tel) {}
+      @NotBlank @Size(max = 30) String tel,
+      @Pattern(regexp = "lavender|ginger|cream|grey|chocolate") String catColor) {}
 
   public record Login(@NotBlank @Email String email, @NotBlank String password) {}
 
   public record Person(Long id, String nom, String prenom) {}
 
   public record UserView(
-      Long id, String email, String nom, String prenom, String tel, List<String> roles) {}
+      Long id, String email, String nom, String prenom, String tel, List<String> roles, String catColor) {}
 
   public record Auth(String token, UserView user) {}
 
@@ -64,7 +65,8 @@ public final class ApiDtos {
         u.getNom(),
         u.getPrenom(),
         u.getTel(),
-        u.getRoles().stream().map(Role::getLibelle).sorted().toList());
+        u.getRoles().stream().map(Role::getLibelle).sorted().toList(),
+        u.getCatColor());
   }
 
   public static Person person(User u) {

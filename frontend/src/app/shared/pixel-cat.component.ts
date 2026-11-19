@@ -1,0 +1,86 @@
+import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
+export const CAT_COLORS = [
+  { value: 'lavender', label: 'Lavender', fur: '#c7afe1', shade: '#9273ae', belly: '#eadcf3' },
+  { value: 'ginger', label: 'Ginger', fur: '#efb078', shade: '#b97545', belly: '#ffe5c5' },
+  { value: 'cream', label: 'Cream', fur: '#ecd8ae', shade: '#b49a70', belly: '#fff3d9' },
+  { value: 'grey', label: 'Grey', fur: '#a9b7ca', shade: '#74869f', belly: '#e1e8f2' },
+  { value: 'chocolate', label: 'Chocolate', fur: '#b58b77', shade: '#815d50', belly: '#e8c9ad' },
+] as const;
+@Component({
+  selector: 'app-pixel-cat',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `<svg [attr.viewBox]="compact ? '24 28 92 76' : '0 0 128 120'" shape-rendering="crispEdges" aria-hidden="true"
+    [style.--fur]="palette.fur" [style.--shade]="palette.shade" [style.--belly]="palette.belly" [class.still]="paused">
+    @if (compact) {   <g class="cat">
+    <g class="tail">
+      <path d="M84 78H100V72H104V60H112V76H108V84H100V88H84Z" fill="#59436e"/>
+      <path d="M88 80H102V74H106V64H110V74H106V82H98V84H88Z" fill="var(--fur)"/>
+    </g>
+    <path d="M44 66H80V70H86V78H90V94H86V98H70V94H54V98H38V94H36V80H40V72H44Z" fill="#59436e"/>
+    <path d="M46 70H78V74H82V82H86V94H72V90H52V94H40V82H44V74H46Z" fill="var(--fur)"/>
+    <path d="M54 74H72V78H76V88H72V92H54V88H50V78H54Z" fill="var(--belly)"/>
+    <path d="M34 30H42V34H46V38H50V40H76V38H80V34H84V30H92V62H88V70H80V74H46V70H38V64H34Z" fill="#59436e"/>
+    <path d="M38 34H42V38H46V42H50V44H76V42H82V38H86V34H88V60H84V66H78V70H48V66H42V60H38Z" fill="var(--fur)"/>
+    <path d="M40 38H42V42H46V46H40Z M84 38H86V46H80V42H84Z" fill="#eeabc8"/>
+    <path d="M54 44H58V48H54Z M62 44H66V50H62Z M70 44H74V48H70Z" fill="var(--shade)"/>
+    <g class="eyes" fill="#382a4c"><path d="M46 53H52V60H46Z M74 53H80V60H74Z"/><path d="M46 53H48V55H46Z M74 53H76V55H74Z" fill="#fff7ff"/></g>
+    <path d="M42 61H50V64H42Z M76 61H84V64H76Z" fill="#eeabc8"/>
+    <path d="M60 59H66V62H64V64H62V62H60Z" fill="#955b87"/>
+    <path d="M57 64H59V66H62V64H64V66H67V64H69V68H57Z" fill="#59436e"/>
+    <path d="M28 56H38V58H28Z M30 62H40V64H30Z M88 56H98V58H88Z M86 62H96V64H86Z" fill="var(--shade)"/>
+    <path d="M54 79H59V82H62V79H67V82H70V87H67V90H64V93H60V90H57V87H54Z" fill="#ee91b4"/>
+    <path d="M42 92H44V96H42Z M48 92H50V96H48Z M76 92H78V96H76Z M82 92H84V96H82Z" fill="var(--shade)"/>
+  </g>
+ } @else {   <!-- Stepped frame and quiet pixel grid. -->
+  <path d="M8 4H120V8H124V112H120V116H8V112H4V8H8Z" fill="var(--ink)"/>
+  <path d="M10 6H118V10H122V110H118V114H10V110H6V10H10Z" fill="var(--surface-alt)"/>
+  <path d="M14 14H114V98H14Z" fill="var(--surface)"/>
+  <path d="M22 24h2v2h-2zM42 24h2v2h-2zM62 24h2v2h-2zM82 24h2v2h-2zM102 24h2v2h-2zM22 44h2v2h-2zM102 44h2v2h-2zM22 64h2v2h-2zM102 64h2v2h-2zM22 84h2v2h-2zM102 84h2v2h-2z" fill="var(--surface-deep)"/>
+  <path d="M28 98H100V102H28Z M36 102H92V104H36Z" fill="var(--surface-deep)"/>
+  <g class="cat">
+    <g class="tail">
+      <path d="M84 78H100V72H104V60H112V76H108V84H100V88H84Z" fill="#59436e"/>
+      <path d="M88 80H102V74H106V64H110V74H106V82H98V84H88Z" fill="var(--fur)"/>
+    </g>
+    <path d="M44 66H80V70H86V78H90V94H86V98H70V94H54V98H38V94H36V80H40V72H44Z" fill="#59436e"/>
+    <path d="M46 70H78V74H82V82H86V94H72V90H52V94H40V82H44V74H46Z" fill="var(--fur)"/>
+    <path d="M54 74H72V78H76V88H72V92H54V88H50V78H54Z" fill="var(--belly)"/>
+    <path d="M34 30H42V34H46V38H50V40H76V38H80V34H84V30H92V62H88V70H80V74H46V70H38V64H34Z" fill="#59436e"/>
+    <path d="M38 34H42V38H46V42H50V44H76V42H82V38H86V34H88V60H84V66H78V70H48V66H42V60H38Z" fill="var(--fur)"/>
+    <path d="M40 38H42V42H46V46H40Z M84 38H86V46H80V42H84Z" fill="#eeabc8"/>
+    <path d="M54 44H58V48H54Z M62 44H66V50H62Z M70 44H74V48H70Z" fill="var(--shade)"/>
+    <g class="eyes" fill="#382a4c"><path d="M46 53H52V60H46Z M74 53H80V60H74Z"/><path d="M46 53H48V55H46Z M74 53H76V55H74Z" fill="#fff7ff"/></g>
+    <path d="M42 61H50V64H42Z M76 61H84V64H76Z" fill="#eeabc8"/>
+    <path d="M60 59H66V62H64V64H62V62H60Z" fill="#955b87"/>
+    <path d="M57 64H59V66H62V64H64V66H67V64H69V68H57Z" fill="#59436e"/>
+    <path d="M28 56H38V58H28Z M30 62H40V64H30Z M88 56H98V58H88Z M86 62H96V64H86Z" fill="var(--shade)"/>
+    <path d="M54 79H59V82H62V79H67V82H70V87H67V90H64V93H60V90H57V87H54Z" fill="#ee91b4"/>
+    <path d="M42 92H44V96H42Z M48 92H50V96H48Z M76 92H78V96H76Z M82 92H84V96H82Z" fill="var(--shade)"/>
+  </g>
+  <g class="heart" fill="var(--accent)"><path d="M22 32H27V35H30V32H35V35H38V41H35V44H32V47H28V44H25V41H22Z"/></g>
+  <g class="heart second" fill="var(--accent)"><path d="M94 20H98V23H101V20H105V23H108V28H105V31H102V34H99V31H96V28H94Z"/></g>
+  <path class="twinkle" d="M65 16H68V20H72V23H68V27H65V23H61V20H65Z M20 76H23V80H27V83H23V87H20V83H16V80H20Z" fill="var(--accent-alt)"/>
+  <path d="M52 108H58V110H52Z M61 108H67V110H61Z M70 108H76V110H70Z" fill="var(--accent-alt)"/>
+ }
+  </svg>`,
+  styles: [`:host { display: inline-block; } svg { display: block; width: 100%; height: auto; overflow: visible; } .still * { animation-play-state: paused !important; } 
+    .cat { animation: bounce 2.4s steps(2,end) infinite; }
+    .tail { animation: swish 1.2s steps(2,end) infinite; transform-origin: 88px 84px; }
+    .eyes { animation: blink 5s steps(1,end) infinite; transform-origin: 64px 57px; }
+    .heart { animation: float 3.2s steps(4,end) infinite; }
+    .heart.second { animation-delay: -1.6s; }
+    .twinkle { animation: twinkle 2s steps(1,end) infinite; }
+    @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+    @keyframes swish { 0%,100% { transform: rotate(0deg); } 50% { transform: rotate(-12deg); } }
+    @keyframes blink { 0%,43%,47%,100% { transform: scaleY(1); } 45% { transform: scaleY(.2); } }
+    @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+    @keyframes twinkle { 0%,100% { opacity: 1; } 50% { opacity: .25; } }
+    @media (prefers-reduced-motion: reduce) { .cat,.tail,.eyes,.heart,.twinkle { animation: none; } }
+  `],
+})
+export class PixelCatComponent {
+  @Input() color = 'lavender';
+  @Input() compact = false;
+  @Input() paused = false;
+  get palette() { return CAT_COLORS.find(c => c.value === this.color) ?? CAT_COLORS[0]; }
+}

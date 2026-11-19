@@ -47,6 +47,32 @@ class ApiIntegrationTests {
         .asText();
   }
 
+  @Test
+  void companionColorPersistsAcrossLogin() throws Exception {
+    String body = json.writeValueAsString(java.util.Map.of(
+        "email", "pixel-pal@example.com", "password", "PixelFriend!2026",
+        "nom", "Pixel", "prenom", "Pal", "tel", "12345678", "catColor", "ginger"));
+    mvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON).content(body))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.user.catColor").value("ginger"));
+    String jwt = token("pixel-pal@example.com", "PixelFriend!2026");
+    mvc.perform(get("/api/auth/me").header("Authorization", "Bearer " + jwt))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.catColor").value("ginger"));
+  }
+
+  @Test
+  void companionColorRejectsUnknownValuesAndDefaultsForOlderAccounts() throws Exception {
+    String body = json.writeValueAsString(java.util.Map.of(
+        "email", "invalid-color@example.com", "password", "PixelFriend!2026",
+        "nom", "Pixel", "prenom", "Pal", "tel", "12345678", "catColor", "invalid"));
+    mvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON).content(body))
+        .andExpect(status().isBadRequest());
+    mvc.perform(get("/api/auth/me").header("Authorization", "Bearer " + member()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.catColor").value("lavender"));
+  }
+
   String admin() throws Exception {
     return token("admin@adoptipattes.local", "AdminDemo!2026");
   }
@@ -105,7 +131,7 @@ class ApiIntegrationTests {
   }
 
   @Test
-  void membersCannotModerateEvenTheirOwnPosts() throws Exception {
+  void membersCanManageTheirOwnPostsButNotModerateOthers() throws Exception {
     long id = create();
     String t = member();
     mvc.perform(
@@ -113,9 +139,30 @@ class ApiIntegrationTests {
                 .header("Authorization", "Bearer " + t)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(postBody("ADOPTION")))
+        .andExpect(status().isOk());
+    long otherId =
+        json.readTree(
+                mvc.perform(
+                        post("/api/annonces")
+                            .header("Authorization", "Bearer " + admin())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(postBody("ADOPTION")))
+                    .andExpect(status().isCreated())
+                    .andReturn()
+                    .getResponse()
+                    .getContentAsString())
+            .get("id")
+            .asLong();
+    mvc.perform(
+            put("/api/annonces/" + otherId)
+                .header("Authorization", "Bearer " + t)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(postBody("ADOPTION")))
+        .andExpect(status().isForbidden());
+    mvc.perform(delete("/api/annonces/" + otherId).header("Authorization", "Bearer " + t))
         .andExpect(status().isForbidden());
     mvc.perform(delete("/api/annonces/" + id).header("Authorization", "Bearer " + t))
-        .andExpect(status().isForbidden());
+        .andExpect(status().isNoContent());
     mvc.perform(get("/api/users").header("Authorization", "Bearer " + t))
         .andExpect(status().isForbidden());
     mvc.perform(
@@ -253,6 +300,48 @@ class ApiIntegrationTests {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$[0].password").doesNotExist())
         .andExpect(jsonPath("$[0].email").exists());
+  }
+
+  @Test
+  void adminCanDeleteUserWithPostsAndOtherUsersComments() throws Exception {
+    String body =
+        "{\"email\":\"deletable@example.com\",\"password\":\"TestPassword!2026\",\"nom\":\"Delete\",\"prenom\":\"Me\",\"tel\":\"12345678\"}";
+    String registered =
+        mvc.perform(
+                post("/api/auth/register")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(body))
+            .andExpect(status().isCreated())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+    long userId = json.readTree(registered).get("user").get("id").asLong();
+    String userToken = token("deletable@example.com", "TestPassword!2026");
+    long postId =
+        json.readTree(
+                mvc.perform(
+                        post("/api/annonces")
+                            .header("Authorization", "Bearer " + userToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(postBody("ADOPTION")))
+                    .andExpect(status().isCreated())
+                    .andReturn()
+                    .getResponse()
+                    .getContentAsString())
+            .get("id")
+            .asLong();
+    mvc.perform(
+            post("/api/annonces/" + postId + "/commentaires")
+                .header("Authorization", "Bearer " + member())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"contenu\":\"A comment from another member\"}"))
+        .andExpect(status().isCreated());
+
+    mvc.perform(delete("/api/users/" + userId).header("Authorization", "Bearer " + admin()))
+        .andExpect(status().isNoContent());
+    mvc.perform(get("/api/users").header("Authorization", "Bearer " + admin()))
+        .andExpect(jsonPath("$[?(@.id == " + userId + ")]").isEmpty());
+    mvc.perform(get("/api/annonces/" + postId)).andExpect(status().isNotFound());
   }
 
   @Test

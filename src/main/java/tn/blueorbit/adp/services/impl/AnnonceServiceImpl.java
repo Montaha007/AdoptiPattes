@@ -65,13 +65,24 @@ public class AnnonceServiceImpl implements AnnonceService {
     return ApiDtos.annonce(repo.save(a));
   }
 
-  public AnnonceView update(Long id, AnnonceInput x) {
+  private void requireOwnerOrAdmin(Annonce a, String email) {
+    User actor = users.findByEmail(email).orElseThrow(() ->
+        new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Please sign in"));
+    boolean admin = actor.getRoles().stream().anyMatch(r -> "ADMIN".equals(r.getLibelle()));
+    if (!admin && !a.getUser().getId().equals(actor.getId()))
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You can only manage your own posts");
+  }
+
+  public AnnonceView update(Long id, AnnonceInput x, String email) {
     Annonce a = find(id);
+    requireOwnerOrAdmin(a, email);
     apply(a, x);
     return ApiDtos.annonce(repo.save(a));
   }
 
-  public void delete(Long id) {
-    repo.delete(find(id));
+  public void delete(Long id, String email) {
+    Annonce a = find(id);
+    requireOwnerOrAdmin(a, email);
+    repo.delete(a);
   }
 }

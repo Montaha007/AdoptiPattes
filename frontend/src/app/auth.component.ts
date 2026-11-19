@@ -1,4 +1,5 @@
-import { Component, inject, signal } from "@angular/core";
+import { CAT_COLORS, PixelCatComponent } from "./shared/pixel-cat.component";
+import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { Router, RouterLink, ActivatedRoute } from "@angular/router";
 import { MatButtonModule } from "@angular/material/button";
@@ -6,7 +7,9 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { AuthService, errorMessage } from "./core";
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    PixelCatComponent,
     FormsModule,
     RouterLink,
     MatButtonModule,
@@ -23,7 +26,7 @@ import { AuthService, errorMessage } from "./core";
             : "Welcome back, kind human."
         }}
       </h1>
-      <img src="assets/hero-cat.svg" alt="A friendly lavender cat" />
+      <app-pixel-cat class="signup-cat" [color]="model.catColor" role="img" aria-label="Preview of your pixel cat" />
       <p>A little kindness can change a little life.</p>
     </div>
     <div class="form-panel">
@@ -44,6 +47,20 @@ import { AuthService, errorMessage } from "./core";
       </p>
       <form #form="ngForm" (ngSubmit)="submit(form.valid)">
         @if (register) {
+          <fieldset class="cat-picker">
+            <legend>Meet your little companion</legend>
+            <p>Choose a coat color. This little friend will wander with you.</p>
+            <div class="cat-swatches">
+              @for (coat of catColors; track coat.value) {
+                <label [class.selected]="model.catColor === coat.value">
+                  <input type="radio" name="catColor" [value]="coat.value" [(ngModel)]="model.catColor" />
+                  <span class="coat-swatch" [style.background]="coat.fur" aria-hidden="true"></span>
+                  {{ coat.label }}
+                </label>
+              }
+            </div>
+            <div class="cat-picker-preview"><app-pixel-cat [compact]="true" [color]="model.catColor" /> <span>Your very own pixel pal.</span></div>
+          </fieldset>
           <div class="two-columns">
             <mat-form-field appearance="outline"
               ><mat-label>First name</mat-label
@@ -136,7 +153,8 @@ export class AuthComponent {
   register = this.route.snapshot.data["register"] === true;
   busy = signal(false);
   error = signal("");
-  model = { email: "", password: "", prenom: "", nom: "", tel: "" };
+  catColors = CAT_COLORS;
+  model = { catColor: "lavender", email: "", password: "", prenom: "", nom: "", tel: "" };
   submit(valid: boolean | null) {
     if (!valid || this.busy()) return;
     this.busy.set(true);

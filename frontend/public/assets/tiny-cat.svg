@@ -1,32 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 90" aria-hidden="true">
-            <path
-              d="M70 70 Q98 72 92 45"
-              fill="none"
-              stroke="#9c83cb"
-              stroke-width="9"
-              stroke-linecap="round"
-            />
-            <ellipse cx="51" cy="65" rx="25" ry="19" fill="#bda9df" />
-            <path
-              d="M22 37 L21 9 40 23 Q51 18 62 23 L80 9 79 40Z"
-              fill="#bda9df"
-            />
-            <ellipse cx="51" cy="40" rx="30" ry="24" fill="#bda9df" />
-            <path d="M26 17 L29 30 36 24 M74 17 L65 25 73 30" fill="#f1b4c8" />
-            <path
-              d="M34 40 Q39 34 43 40 M59 40 Q64 34 68 40"
-              fill="none"
-              stroke="#46375e"
-              stroke-width="3"
-              stroke-linecap="round"
-            />
-            <path d="M47 45 L55 45 51 50Z" fill="#965d84" />
-            <ellipse cx="31" cy="47" rx="6" ry="3" fill="#f1b4c8" />
-            <ellipse cx="71" cy="47" rx="6" ry="3" fill="#f1b4c8" />
-            <path
-              d="M36 74v9 M63 74v9"
-              stroke="#9c83cb"
-              stroke-width="10"
-              stroke-linecap="round"
-            />
-          </svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="24 28 92 76" shape-rendering="crispEdges">  <g class="cat">
+    <g class="tail">
+      <path d="M84 78H100V72H104V60H112V76H108V84H100V88H84Z" fill="#59436e"/>
+      <path d="M88 80H102V74H106V64H110V74H106V82H98V84H88Z" fill="#b79ad4"/>
+    </g>
+    <path d="M44 66H80V70H86V78H90V94H86V98H70V94H54V98H38V94H36V80H40V72H44Z" fill="#59436e"/>
+    <path d="M46 70H78V74H82V82H86V94H72V90H52V94H40V82H44V74H46Z" fill="#bfa3dc"/>
+    <path d="M54 74H72V78H76V88H72V92H54V88H50V78H54Z" fill="#eadcf3"/>
+    <path d="M34 30H42V34H46V38H50V40H76V38H80V34H84V30H92V62H88V70H80V74H46V70H38V64H34Z" fill="#59436e"/>
+    <path d="M38 34H42V38H46V42H50V44H76V42H82V38H86V34H88V60H84V66H78V70H48V66H42V60H38Z" fill="#c7afe1"/>
+    <path d="M40 38H42V42H46V46H40Z M84 38H86V46H80V42H84Z" fill="#eeabc8"/>
+    <path d="M54 44H58V48H54Z M62 44H66V50H62Z M70 44H74V48H70Z" fill="#ac8bc9"/>
+    <g class="eyes" fill="#382a4c"><path d="M46 53H52V60H46Z M74 53H80V60H74Z"/><path d="M46 53H48V55H46Z M74 53H76V55H74Z" fill="#fff7ff"/></g>
+    <path d="M42 61H50V64H42Z M76 61H84V64H76Z" fill="#eeabc8"/>
+    <path d="M60 59H66V62H64V64H62V62H60Z" fill="#955b87"/>
+    <path d="M57 64H59V66H62V64H64V66H67V64H69V68H57Z" fill="#59436e"/>
+    <path d="M28 56H38V58H28Z M30 62H40V64H30Z M88 56H98V58H88Z M86 62H96V64H86Z" fill="#9273ae"/>
+    <path d="M54 79H59V82H62V79H67V82H70V87H67V90H64V93H60V90H57V87H54Z" fill="#ee91b4"/>
+    <path d="M42 92H44V96H42Z M48 92H50V96H48Z M76 92H78V96H76Z M82 92H84V96H82Z" fill="#9273ae"/>
+  </g>
+</svg>

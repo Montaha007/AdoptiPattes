@@ -5,7 +5,20 @@
     <title>AdoptiPattes · Little paws, big love</title>
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#7256a8" />
+    <meta name="theme-color" content="#101827" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Pixelify+Sans:wght@400..700&display=swap" rel="stylesheet" />
+    <script>
+      (() => {
+        const saved = localStorage.getItem('adp-theme');
+        const mode = saved === 'paper' || saved === 'arcade'
+          ? saved
+          : matchMedia('(prefers-color-scheme: dark)').matches ? 'arcade' : 'paper';
+        document.documentElement.dataset.theme = mode;
+        document.documentElement.style.colorScheme = mode === 'arcade' ? 'dark' : 'light';
+      })();
+    </script>
     <meta
       name="description"
       content="A kinder corner of the internet. Adopt a companion, help a stray, and share advice with your local animal-loving community."

@@ -1,4 +1,5 @@
-import { Component, inject, signal, DestroyRef } from "@angular/core";
+import { PixelCatComponent } from "./shared/pixel-cat.component";
+import { ChangeDetectionStrategy, Component, inject, signal, computed, DestroyRef } from "@angular/core";
 import { DatePipe } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { RouterLink, ActivatedRoute } from "@angular/router";
@@ -6,6 +7,7 @@ import { MatButtonModule } from "@angular/material/button";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Subject, merge, switchMap, catchError, of, tap } from "rxjs";
+import { RevealDirective } from "./shared/reveal.directive";
 import {
   Annonce,
   AnnonceService,
@@ -16,27 +18,26 @@ import {
   errorMessage,
 } from "./core";
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    PixelCatComponent,
     FormsModule,
     RouterLink,
     DatePipe,
     MatButtonModule,
     MatProgressSpinnerModule,
+    RevealDirective,
   ],
-  template: ` <section class="hero">
+  template: ` @if (!mine) { <section class="hero">
       <div class="hero-copy">
-        <span class="eyebrow"
-          ><span></span> A KINDER WORLD STARTS WITH US</span
-        >
+        <span class="eyebrow">LEVEL 01 / A KINDER WORLD STARTS WITH US</span>
         <h1>Little paws.<br />Big <em>possibilities.</em></h1>
         <p>
           Find a forever friend, lend a helping hand, or share a little wisdom.
           Every small act of kindness matters.
         </p>
         <div class="hero-actions">
-          <a mat-flat-button routerLink="/" [queryParams]="{ type: 'ADOPTION' }"
-            >Find your new friend <span></span></a
-          >
+          <a mat-flat-button routerLink="/" [queryParams]="{ type: 'ADOPTION' }">Find your new friend</a>
           @if (auth.user()) {
             <a mat-stroked-button routerLink="/annonces/new"
               >Share an announcement</a
@@ -49,7 +50,7 @@ import {
         </div>
         <div class="community">
           <div class="avatar-stack">
-            <span>M</span><span>S</span><span></span>
+            <span>M</span><span>S</span><span>+</span>
           </div>
           <div>
             <strong>Good hearts. Happy tails.</strong
@@ -60,26 +61,27 @@ import {
       <div class="hero-art">
         <div class="hero-orbit"></div>
         <span class="spark s1"></span><span class="spark s2"></span
-        ><img
-          class="hero-cat"
-          src="assets/hero-cat.svg"
-          alt="A smiling illustrated cat surrounded by hearts"
-        />
+        ><app-pixel-cat class="hero-cat" [color]="auth.user()?.catColor || 'lavender'" role="img" aria-label="Your pixel cat with floating hearts" />
         <div class="floating-note note-top">
-          <span></span>
           <div>A little love<small>changes everything</small></div>
         </div>
         <div class="floating-note note-bottom">
-          <span></span>
           <div>Home is a feeling.<small>Let's help them find it.</small></div>
         </div>
       </div>
     </section>
-    <section class="explore">
+    }
+    <section class="explore" [class.my-publications]="mine">
       <div class="section-heading">
         <div>
-          <span class="eyebrow">ONE COMMUNITY. SO MANY WAYS TO CARE.</span>
-          <h2>A little help goes a long way<span> </span></h2>
+          @if (mine) {
+            <span class="eyebrow">YOUR CORNER OF THE COMMUNITY</span>
+            <h1>My publications</h1>
+            <p>Your stories, helping paws, and happy endings. All in one place.</p>
+          } @else {
+            <span class="eyebrow">LEVEL 02 / ONE COMMUNITY. SO MANY WAYS TO CARE.</span>
+            <h2>A little help goes a long way</h2>
+          }
         </div>
         @if (auth.user()) {
           <a mat-flat-button routerLink="/annonces/new"> Share a post</a>
@@ -102,8 +104,7 @@ import {
           }
         </div>
         <form class="city-search" (ngSubmit)="refresh.next()">
-          <span aria-hidden="true"></span
-          ><input
+          <input
             aria-label="Filter by city"
             name="ville"
             [(ngModel)]="ville"
@@ -112,10 +113,10 @@ import {
         </form>
       </div>
       <div class="results-meta">
-        <span>{{ items().length }} stories waiting for a little kindness</span
+        <span>{{ items().length }} {{ mine ? "of your publications" : "stories waiting for a little kindness" }}</span
         ><span>Newest first</span>
       </div>
-      @if (loading()) {
+      @if (loading() || (mine && !auth.user())) {
         <div class="state">
           <mat-spinner diameter="36" />
           <p>Gathering little stories...</p>
@@ -128,14 +129,15 @@ import {
       } @else if (!items().length) {
         <div class="state">
           <span class="empty-icon"></span>
-          <h3>No little paws here yet</h3>
-          <p>Try another city or share the first announcement.</p>
-          <button mat-button (click)="reset()">Clear filters</button>
+          <h3>{{ mine ? "No publications here yet" : "No little paws here yet" }}</h3>
+          <p>{{ mine ? (type || ville ? "None of your posts match these filters." : "Share your first announcement and find it here whenever you need it.") : "Try another city or share the first announcement." }}</p>
+          @if (mine) { <a mat-flat-button routerLink="/annonces/new">Share a post</a> }
+          @if (type || ville) { <button mat-button (click)="reset()">Clear filters</button> }
         </div>
       } @else {
         <div class="card-grid">
-          @for (a of items(); track a.id) {
-            <article class="pet-card">
+          @for (a of items(); track a.id; let cardIndex = $index) {
+            <article class="pet-card" appReveal [style.--reveal-index]="cardIndex">
               <a class="card-photo" [routerLink]="['/annonces', a.id]"
                 ><img
                   [src]="a.photoUrl || 'assets/hero-cat.svg'"
@@ -150,6 +152,12 @@ import {
                 ></a
               >
               <div class="card-body">
+                @if (mine) {
+                  <div class="publication-actions">
+                    <a mat-button [routerLink]="['/annonces', a.id, 'edit']">Edit post</a>
+                    <a mat-button [routerLink]="['/annonces', a.id]">View / delete</a>
+                  </div>
+                }
                 <div class="pet-meta">
                   <span
                     >{{
@@ -190,7 +198,7 @@ import {
         </div>
       }
     </section>
-    <section class="kindness-banner">
+    @if (!mine) { <section class="kindness-banner">
       <span></span>
       <div>
         <h2>You don't need a cape to be someone's hero.</h2>
@@ -199,7 +207,7 @@ import {
         </p>
       </div>
       <a mat-stroked-button routerLink="/register">Be part of something kind</a>
-    </section>`,
+    </section> }`,
 })
 export class AnnonceListComponent {
   api = inject(AnnonceService);
@@ -211,7 +219,11 @@ export class AnnonceListComponent {
   statusName = statusName;
   type = "";
   ville = "";
-  items = signal<Annonce[]>([]);
+  mine = this.route.snapshot.data["mine"] === true;
+  allItems = signal<Annonce[]>([]);
+  items = computed(() => this.mine
+    ? this.allItems().filter(a => a.auteur.id === this.auth.user()?.id)
+    : this.allItems());
   loading = signal(true);
   error = signal("");
   refresh = new Subject<void>();
@@ -238,7 +250,7 @@ export class AnnonceListComponent {
         takeUntilDestroyed(this.destroy),
       )
       .subscribe((a) => {
-        this.items.set(a);
+        this.allItems.set(a);
         this.loading.set(false);
       });
   }

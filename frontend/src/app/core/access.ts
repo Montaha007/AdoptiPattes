@@ -9,7 +9,7 @@ import { CanActivateFn, Router } from "@angular/router";
 import { catchError, tap, throwError } from "rxjs";
 
 import { AuthService } from "./auth.service";
-import { User } from "./models";
+import { User, Annonce } from "./models";
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService),
     router = inject(Router);
@@ -55,3 +55,17 @@ import { map } from "rxjs";
 const mapAdmin = (r: Router) =>
   map((u: User) => (u.roles.includes("ADMIN") ? true : r.createUrlTree(["/"])));
 
+
+export const postOwnerGuard: CanActivateFn = (route, state) => {
+  const auth = inject(AuthService), router = inject(Router), http = inject(HttpClient);
+  if (!auth.token()) return router.createUrlTree(['/login'], { queryParams: { returnUrl: state.url } });
+  return http.get<User>('/api/auth/me').pipe(
+    tap(u => auth.user.set(u)),
+    switchMap(u => http.get<Annonce>('/api/annonces/' + route.paramMap.get('id')).pipe(
+      map(a => u.roles.includes('ADMIN') || a.auteur.id === u.id
+        ? true : router.createUrlTree(['/annonces', a.id])),
+    )),
+    catchError(() => of(router.createUrlTree(['/my-publications']))),
+  );
+};
+import { switchMap, of } from 'rxjs';

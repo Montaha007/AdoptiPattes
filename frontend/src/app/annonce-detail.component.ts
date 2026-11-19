@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   inject,
   signal,
@@ -28,6 +29,7 @@ import {
   errorMessage,
 } from "./core";
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [MatDialogModule, MatButtonModule],
   template: `<h2 mat-dialog-title>{{ data.title }}</h2>
     <mat-dialog-content>{{ data.text }}</mat-dialog-content
@@ -43,6 +45,7 @@ export class ConfirmDialog {
 }
 @Component({
   selector: "app-commentaire-form",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, MatButtonModule, MatFormFieldModule, MatInputModule],
   template: `<form #f="ngForm" (ngSubmit)="submit()">
     <mat-form-field appearance="outline"
@@ -91,6 +94,7 @@ export class CommentaireFormComponent {
 }
 @Component({
   selector: "app-commentaire-list",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
     FormsModule,
@@ -192,6 +196,7 @@ export class CommentaireListComponent {
   }
 }
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
     DatePipe,
@@ -287,9 +292,9 @@ export class CommentaireListComponent {
               >View on OpenStreetMap</a
             >
           }
-          @if (auth.isAdmin()) {
-            <div class="admin-actions">
-              <h3>Moderation</h3>
+          @if (auth.isAdmin() || auth.user()?.id === a.auteur.id) {
+              <div class="admin-actions">
+              <h3>{{ auth.isAdmin() ? "Moderation" : "Your publication" }}</h3>
               <a mat-flat-button [routerLink]="['/annonces', a.id, 'edit']"
                 >Edit post / change status</a
               ><button mat-button (click)="remove(a)" [disabled]="deleting()">
@@ -375,7 +380,7 @@ export class AnnonceDetailComponent {
         if (ok) {
           this.deleting.set(true);
           this.api.delete(a.id).subscribe({
-            next: () => this.router.navigate(["/"]),
+            next: () => this.router.navigate(["/my-publications"]),
             error: (e) => {
               this.deleting.set(false);
               this.error.set(errorMessage(e));

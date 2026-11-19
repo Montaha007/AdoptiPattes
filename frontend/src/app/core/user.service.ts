@@ -12,6 +12,7 @@ import { User, Auth, Annonce, AnnonceInput, Comment } from "./models";
 @Injectable({ providedIn: "root" })
 export class UserService {
   private http = inject(HttpClient);
+  delete(id: number) { return this.http.delete<void>("/api/users/" + id); }
   list() {
     return this.http.get<User[]>("/api/users");
   }

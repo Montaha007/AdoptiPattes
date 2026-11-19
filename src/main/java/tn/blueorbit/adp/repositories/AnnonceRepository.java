@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import tn.blueorbit.adp.entities.*;
 
 public interface AnnonceRepository extends JpaRepository<Annonce, Long> {
+  void deleteAllByUserId(Long userId);
   @org.springframework.data.jpa.repository.Query(
       "select a from Annonce a where (:type is null or a.type=:type) and (:ville is null or"
           + " lower(a.ville) like lower(concat('%',:ville,'%'))) order by a.datePublication desc")

@@ -11,7 +11,7 @@ public interface AnnonceService {
 
   AnnonceView create(AnnonceInput input, String email);
 
-  AnnonceView update(Long id, AnnonceInput input);
+  AnnonceView update(Long id, AnnonceInput input, String email);
 
-  void delete(Long id);
+  void delete(Long id, String email);
 }

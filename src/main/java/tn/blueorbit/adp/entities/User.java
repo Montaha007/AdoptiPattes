@@ -39,6 +39,12 @@ public class User {
   @Column(nullable = false)
   private String prenom;
 
+  @Column(length = 20)
+  private String catColor = "lavender";
+
+  public String getCatColor() { return catColor == null ? "lavender" : catColor; }
+  public void setCatColor(String value) { catColor = value == null ? "lavender" : value; }
+
   @ManyToMany(fetch = FetchType.EAGER)
   @JoinTable(
       name = "user_roles",

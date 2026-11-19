@@ -8,6 +8,7 @@ export interface User extends Person {
   email: string;
   tel: string;
   roles: string[];
+  catColor?: string;
 }
 export interface Auth {
   token: string;

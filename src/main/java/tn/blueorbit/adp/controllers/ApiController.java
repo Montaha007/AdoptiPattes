@@ -41,14 +41,14 @@ public class ApiController {
   }
 
   @PutMapping("/annonces/{id}")
-  AnnonceView update(@PathVariable("id") Long id, @Valid @RequestBody AnnonceInput x) {
-    return annonces.update(id, x);
+  AnnonceView update(@PathVariable("id") Long id, @Valid @RequestBody AnnonceInput x, Principal p) {
+    return annonces.update(id, x, p.getName());
   }
 
   @DeleteMapping("/annonces/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  void delete(@PathVariable("id") Long id) {
-    annonces.delete(id);
+  void delete(@PathVariable("id") Long id, Principal p) {
+    annonces.delete(id, p.getName());
   }
 
   @GetMapping("/annonces/{id}/commentaires")
@@ -76,6 +76,12 @@ public class ApiController {
   @GetMapping("/users")
   List<UserView> users() {
     return users.list();
+  }
+
+  @DeleteMapping("/users/{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  void deleteUser(@PathVariable("id") Long id, Principal p) {
+    users.delete(id, p.getName());
   }
 
   @PostMapping("/auth/register")

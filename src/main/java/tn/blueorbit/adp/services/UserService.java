@@ -11,4 +11,6 @@ public interface UserService {
   Auth register(Register input);
 
   Auth login(Login input);
+
+  void delete(Long id, String actorEmail);
 }

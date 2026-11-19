@@ -1,4 +1,4 @@
-import { Component, inject, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import {
   Router,
   RouterLink,
@@ -8,14 +8,17 @@ import {
 import { MatButtonModule } from "@angular/material/button";
 import { AuthService } from "./core";
 import { CatsComponent } from "./cats.component";
+import { PixelThemeToggleComponent } from "./shared/pixel-theme-toggle.component";
 @Component({
   selector: "app-root",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     RouterLink,
     RouterLinkActive,
     RouterOutlet,
     MatButtonModule,
     CatsComponent,
+    PixelThemeToggleComponent,
   ],
   template: ` <a class="skip" href="#main" (click)="skipToContent($event)">Skip to content</a>
     <header class="site-header">
@@ -33,6 +36,9 @@ import { CatsComponent } from "./cats.component";
         ><a routerLink="/" [queryParams]="{ type: 'ANIMAL_ERRANT' }"
           >Help a stray</a
         >
+        @if (auth.user()) {
+          <a routerLink="/my-publications" routerLinkActive="active">My publications</a>
+        }
         @if (auth.isAdmin()) {
           <a routerLink="/users">Members</a>
         }
@@ -47,6 +53,7 @@ import { CatsComponent } from "./cats.component";
           <a mat-button routerLink="/login">Log in</a
           ><a mat-flat-button routerLink="/register">Join the kindness</a>
         }
+        <app-pixel-theme-toggle />
       </div>
     </header>
     <main id="main" tabindex="-1"><router-outlet /></main>
