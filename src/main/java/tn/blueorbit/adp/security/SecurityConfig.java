@@ -31,7 +31,7 @@ public class SecurityConfig {
   }
 
   @Bean
-  SecurityFilterChain security(HttpSecurity http, JwtFilter jwt, CorsConfigurationSource cors)
+  SecurityFilterChain security(HttpSecurity http, JwtFilter jwt, @org.springframework.beans.factory.annotation.Qualifier("cors") CorsConfigurationSource cors)
       throws Exception {
     return http.csrf(c -> c.disable())
         .cors(c -> c.configurationSource(cors))
@@ -77,3 +77,4 @@ public class SecurityConfig {
         .build();
   }
 }
+

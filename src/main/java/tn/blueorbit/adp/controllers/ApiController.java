@@ -24,13 +24,13 @@ public class ApiController {
 
   @GetMapping("/annonces")
   List<AnnonceView> list(
-      @RequestParam(required = false) TypeAnnonce type,
-      @RequestParam(required = false) String ville) {
+      @RequestParam(value = "type", required = false) TypeAnnonce type,
+      @RequestParam(value = "ville", required = false) String ville) {
     return annonces.list(type, ville);
   }
 
   @GetMapping("/annonces/{id}")
-  AnnonceView get(@PathVariable Long id) {
+  AnnonceView get(@PathVariable("id") Long id) {
     return annonces.get(id);
   }
 
@@ -41,35 +41,35 @@ public class ApiController {
   }
 
   @PutMapping("/annonces/{id}")
-  AnnonceView update(@PathVariable Long id, @Valid @RequestBody AnnonceInput x) {
+  AnnonceView update(@PathVariable("id") Long id, @Valid @RequestBody AnnonceInput x) {
     return annonces.update(id, x);
   }
 
   @DeleteMapping("/annonces/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  void delete(@PathVariable Long id) {
+  void delete(@PathVariable("id") Long id) {
     annonces.delete(id);
   }
 
   @GetMapping("/annonces/{id}/commentaires")
-  List<CommentView> comments(@PathVariable Long id) {
+  List<CommentView> comments(@PathVariable("id") Long id) {
     return comments.list(id);
   }
 
   @PostMapping("/annonces/{id}/commentaires")
   @ResponseStatus(HttpStatus.CREATED)
-  CommentView comment(@PathVariable Long id, @Valid @RequestBody CommentInput x, Principal p) {
+  CommentView comment(@PathVariable("id") Long id, @Valid @RequestBody CommentInput x, Principal p) {
     return comments.create(id, x, p.getName());
   }
 
   @PutMapping("/commentaires/{id}")
-  CommentView updateComment(@PathVariable Long id, @Valid @RequestBody CommentInput x) {
+  CommentView updateComment(@PathVariable("id") Long id, @Valid @RequestBody CommentInput x) {
     return comments.update(id, x);
   }
 
   @DeleteMapping("/commentaires/{id}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  void deleteComment(@PathVariable Long id) {
+  void deleteComment(@PathVariable("id") Long id) {
     comments.delete(id);
   }
 
@@ -94,3 +94,4 @@ public class ApiController {
     return users.me(p.getName());
   }
 }
+
