@@ -1,0 +1,16 @@
+node_modules/
+dist/
+target/
+.angular/
+.env
+data/
+*.log
+.idea/
+.classpath
+.project
+.settings/
+src/main/resources/static/
+
+
+/adp.jar
+/tools/mailpit/mailpit.exe
