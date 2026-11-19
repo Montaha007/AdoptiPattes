@@ -1,0 +1,14 @@
+[Unit]
+Description=AdoptiPattes
+After=network.target mysql.service
+[Service]
+User=adp
+Group=adp
+WorkingDirectory=/opt/adp
+EnvironmentFile=/etc/adp.env
+ExecStart=/usr/bin/java -jar /opt/adp/adp.jar --server.address=127.0.0.1
+Restart=on-failure
+NoNewPrivileges=true
+PrivateTmp=true
+[Install]
+WantedBy=multi-user.target

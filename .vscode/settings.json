@@ -1,0 +1,10 @@
+{
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "files.exclude": {
+    "**/target": true,
+    "**/node_modules": true,
+    "**/.angular": true,
+    "**/dist": true
+  },
+  "java.compile.nullAnalysis.mode": "automatic"
+}
